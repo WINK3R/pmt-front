@@ -1,2 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+
+@theme {
+  --font-display: "Plus Jakarta Sans", "sans-serif";
+}
+
+* {
+  font-family: var(--font-display), sans-serif;
+}
+
+.input-text {
+  width: 100%;
+  background: var(--color-gray-50);
+  height: 3.5rem;
+  padding: 0 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.input-text::placeholder {
+  opacity: 0.5;
+}
+
+.input-text::selection {
+  background: var(--color-indigo-400);
+  color: white;
+}
+
+button {
+  cursor: pointer;
+}
