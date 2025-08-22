@@ -14,7 +14,7 @@ export const appConfig: ApplicationConfig = {
       withXsrfConfiguration({
         cookieName: 'XSRF-TOKEN',
         headerName: 'X-XSRF-TOKEN'
-      })
+      }),
     )
   ]
 };

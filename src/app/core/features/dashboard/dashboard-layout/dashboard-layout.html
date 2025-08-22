@@ -1,9 +1,11 @@
 <div class="min-w-screen min-h-screen flex">
-  <div class="w-20 h-screen bg-white border-r-1 border-gray-200"></div>
+  <div class="w-20 h-screen bg-white border-r-1 border-gray-200">
+    <app-square-icon-button [icon]="BoxIcon" />
+  </div>
   <div class="w-full h-screen bg-slate-50">
-    <div class="w-full h-20 bg-white border-b-1 border-gray-200">
-
-    </div>
+    <app-top-bar-dashboard>
+      <app-square-icon-button [icon]="House" />
+    </app-top-bar-dashboard>
     <router-outlet></router-outlet>
   </div>
 
