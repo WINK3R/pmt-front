@@ -1,11 +1,14 @@
-<div class="min-w-screen min-h-screen flex">
-  <div class="w-20 h-screen bg-white border-r-1 border-gray-200">
-    <app-square-icon-button [icon]="BoxIcon" />
+<div class="min-h-screen w-screen flex overflow-x-hidden">
+  <div class="w-20 h-screen  bg-white border-r-1 border-gray-200 sticky top-0 flex flex-col items-center">
+    <div class="h-20 w-full p-6">
+      <img [src] = "environment.apiUrl + (getProfileImage() ?? '/assets/default-avatar.png')" alt="profile avatar" class="rounded-sm"/>
+    </div>
+    <div class="flex flex-col h-full justify-between p-6">
+      <app-square-icon-button [icon]="BoxIcon" (click)="goProjects()"/>
+      <app-square-icon-button [icon]="DoorOpen" class="opacity-15 hover:opacity-100 transition-all" (click)="logout()"/>
+    </div>
   </div>
-  <div class="w-full h-screen bg-slate-50">
-    <app-top-bar-dashboard>
-      <app-square-icon-button [icon]="House" />
-    </app-top-bar-dashboard>
+  <div class="flex-1 max-h-screen">
     <router-outlet></router-outlet>
   </div>
 

@@ -1,1 +1,84 @@
-<p>projects works!</p>
+<div class="h-full">
+  <app-top-bar-dashboard class="sticky top-0 z-10">
+    <app-square-icon-button [icon]="House" />
+    <lucide-icon [img]="ChevronRight" class="opacity-60"/>
+    <div class="flex gap-1">
+      <lucide-icon [img]="Box" class="opacity-60"/>
+      <h1 class="text-md font-bold text-dark-text">Projects</h1>
+
+    </div>
+  </app-top-bar-dashboard>
+  <div class="flex-1 overflow-y-auto p-6 bg-slate-50 h-full">
+    <h1 class="text-4xl font-bold text-dark-text mb-6">Your projects</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+      @for (p of projects(); track p.id) {
+        <app-project-cell [project]="p"
+                          (infoClicked)="openProjectDetails($event)"></app-project-cell>
+      }
+      <div class="flex justify-center items-center w-full max:w-1/4 h-40 bg-gray-200/80 rounded-2xl opacity-50 hover:opacity-100 cursor-pointer border-gray-300 hover:border-1 transition-all" (click)="createProjectDialog = true">
+        <lucide-icon [img]="Plus" class="text-dark-text opacity-80"/>
+        <span class="text-dark-text">Creat New Project</span>
+      </div>
+    </div>
+  </div>
+
+  <p-drawer [(visible)]="detailsProjectSidebar" position="right">
+    <h3>{{ selectedProject?.name }}</h3>
+  </p-drawer>
+  <p-dialog
+    [(visible)]="createProjectDialog"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '50%' }"
+    styleClass="!border-0 !rounded-3xl"
+  >
+    <ng-template #headless>
+      <div
+        class="flex flex-col p-8 gap-6 w-full"
+      >
+        <div class="flex gap-2 items-center">
+          <input
+            class="text-3xl font-black text-dark-text py-1
+         border-0 outline-none focus:outline-none
+         focus:ring-0 focus:border-transparent focus:shadow-none w-full
+         appearance-none"
+            placeholder="Project Name"
+            [(ngModel)]="projectName"
+          />
+          <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50"></lucide-icon>
+        </div>
+        <p-select
+          [options]="ALL_TAGS"
+          [(ngModel)]="selectedTag"
+          placeholder="Select a Tag"
+          class="w-full md:w-56">
+          <ng-template pTemplate="item" let-opt>
+            {{ labelOf(opt) }}
+          </ng-template>
+          <ng-template pTemplate="selectedItem" let-value>
+            {{ value ? labelOf(value) : 'Select a Tag' }}
+          </ng-template>
+        </p-select>
+        <div class="flex flex-col">
+          <span class="font-bold text-dark-text">Description</span>
+          <div class="flex gap-2 items-start w-full">
+          <textarea
+            [(ngModel)]="projectDescription"
+            class="text-lg text-dark-text py-1
+           border-0 outline-none focus:outline-none field-sizing-content
+           focus:ring-0 focus:border-transparent focus:shadow-none
+           appearance-none w-full"
+            placeholder="Description of your project"></textarea>
+            <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-1"></lucide-icon>
+          </div>
+        </div>
+      </div>
+      <button class="h-20 rounded-b-3xl bg-gray-100 text-md flex justify-center items-center gap-1 hover:bg-gray-200 transition-all"
+              (click)="createProject()"
+              [disabled]="creating || !projectName.trim().length">
+        <lucide-icon [img]="Plus" class="h-5 w-5"></lucide-icon>
+        {{ creating ? 'Creating…' : 'Create The Project' }}
+      </button>
+    </ng-template>
+  </p-dialog>
+</div>

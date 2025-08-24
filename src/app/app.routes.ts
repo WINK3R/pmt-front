@@ -17,6 +17,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./core/features/dashboard/pages/projects/projects').then(m => m.Projects),
       },
+      {
+        path: 'projects/:id',
+        loadComponent: () =>
+          import('./core/features/dashboard/pages/details-project/details-project').then(m => m.DetailsProject),
+      }
     ],
   },
 ];

@@ -1,0 +1,133 @@
+<app-top-bar-dashboard class="sticky top-0 z-10">
+  <div class="flex gap-1.5 items-center">
+    <app-square-icon-button [icon]="House" (click)="goHome()"/>
+    <lucide-icon [img]="ChevronRight" class="opacity-60"/>
+    <div class="flex gap-1">
+      <lucide-icon [img]="Box" class="opacity-60"/>
+      <h1 class="text-md font-bold text-dark-text">Projects</h1>
+
+    </div>
+    <lucide-icon [img]="ChevronRight" class="opacity-60"/>
+    <h1 class="text-md font-bold text-dark-text">{{ project?.name }}</h1>
+  </div>
+</app-top-bar-dashboard>
+<div class="flex-1 overflow-y-auto p-6 bg-slate-50 h-full">
+  <h1 class="text-4xl font-bold text-dark-text mb-6">{{ project?.name }}</h1>
+  <div class="grid grid-cols-4 gap-2">
+    @for (col of columns; track col.id) {
+      <div class="flex flex-col gap-2 flex-1 group">
+        <h1 class="font-bold text-2xl mb-6" [ngClass]="col.color">{{ col.name }}</h1>
+        <div
+          cdkDropList
+          [cdkDropListData]="col.tasks"
+          [cdkDropListConnectedTo]="dropListIds"
+          [id]="col.id"
+          class="flex flex-col gap-2 min-h-[300px]"
+          (cdkDropListDropped)="drop($event)"
+        >
+          @for (task of col.tasks; track task.id) {
+            <div cdkDrag>
+              <app-task-cell
+                [task]="task"
+              />
+            </div>
+          }
+          <div class="group-hover:opacity-50 hover:opacity-100 flex opacity-0 justify-center items-center w-full max:w-1/4 h-14 bg-gray-200/80 rounded-2xl cursor-pointer border-gray-300 hover:border-1 transition-all"
+          (click)="openTaskDialog(col.status)">
+            <lucide-icon [img]="Plus" class="text-dark-text opacity-80"/>
+            <span class="text-dark-text">Add New Task</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  <p-dialog
+    [(visible)]="createTaskDialog"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '50%' }"
+    styleClass="!border-0 !rounded-3xl"
+  >
+    <ng-template #headless>
+      <div
+        class="flex flex-col p-8 gap-6 w-full"
+      >
+        <div class="flex gap-2 items-center">
+          <input
+            class="text-3xl font-black text-dark-text py-1
+         border-0 outline-none focus:outline-none
+         focus:ring-0 focus:border-transparent focus:shadow-none w-full
+         appearance-none"
+            placeholder="What you want to do next ?"
+            [(ngModel)]="taskTitle"
+          />
+          <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50"></lucide-icon>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-dark-text">Description</span>
+          <div class="flex gap-2 items-start w-full">
+          <textarea
+            class="text-lg text-dark-text py-1
+           border-0 outline-none focus:outline-none field-sizing-content
+           focus:ring-0 focus:border-transparent focus:shadow-none
+           appearance-none w-full"
+            [(ngModel)]="taskDescription"
+            placeholder="Description of your task"></textarea>
+            <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-1"></lucide-icon>
+          </div>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-dark-text">Tag</span>
+          <p-select
+            [options]="ALL_TAGS"
+            placeholder="Select a Tag"
+            [(ngModel)]="taskTag"
+            class="w-full md:w-56">
+            <ng-template pTemplate="item" let-opt>
+              {{ labelOf(opt) }}
+            </ng-template>
+            <ng-template pTemplate="selectedItem" let-value>
+              {{ value ? labelOf(value) : 'Select a Status' }}
+            </ng-template>
+          </p-select>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-dark-text">Priority</span>
+          <p-select
+            [options]="ALL_PRIORITY"
+            placeholder="Select a Priority"
+            [(ngModel)]="taskPriority"
+            class="w-full md:w-56">
+            <ng-template pTemplate="item" let-opt>
+              {{ labelOfStatus(opt) }}
+            </ng-template>
+            <ng-template pTemplate="selectedItem" let-value>
+              {{ value ? labelOfStatus(value) : 'Select a Status' }}
+            </ng-template>
+          </p-select>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-dark-text">Status</span>
+          <p-select
+            [options]="ALL_STATUS"
+            placeholder="Select a Tag"
+            [(ngModel)]="taskStatus"
+            class="w-full md:w-56">
+            <ng-template pTemplate="item" let-opt>
+              {{ labelOfStatus(opt) }}
+            </ng-template>
+            <ng-template pTemplate="selectedItem" let-value>
+              {{ value ? labelOfStatus(value) : 'Select a Status' }}
+            </ng-template>
+          </p-select>
+        </div>
+      </div>
+      <button class="h-20 rounded-b-3xl bg-gray-100 text-md flex justify-center items-center gap-1 hover:bg-gray-200 transition-all"
+              (click)="createTask()">
+        <lucide-icon [img]="Plus" class="h-5 w-5"></lucide-icon>
+        Create The Task
+      </button>
+    </ng-template>
+  </p-dialog>
+</div>
+

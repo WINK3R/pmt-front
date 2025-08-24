@@ -1,13 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
-
 @theme {
   --font-display: "Plus Jakarta Sans", "sans-serif";
+  --color-dark-text: #303030;
 }
 
 * {
   font-family: var(--font-display), sans-serif;
 }
+
+
 
 .input-text {
   width: 100%;

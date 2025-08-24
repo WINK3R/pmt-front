@@ -1,0 +1,39 @@
+import { Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { ApiService } from '../services/apiService';
+import { Project } from '../models/project';
+import { Tag } from '../models/enum/tag';
+import type {ProjectDTO} from '../models/dtos/dto';
+import {Task} from '../models/task';
+
+@Injectable({ providedIn: 'root' })
+export class ProjectRepository {
+  constructor(private api: ApiService) {}
+
+  list(): Observable<Project[]> {
+    return this.api.projects.list()
+      .pipe(map((dtos: ProjectDTO[]) => dtos.map(Project.fromApi)));
+  }
+
+  create(input: { name: string; description?: string | undefined; tag?: Tag }): Observable<Project> {
+    const payload: Partial<ProjectDTO> = {
+      name: input.name,
+      description: input.description ?? undefined,
+      tag: input.tag ?? undefined,
+    };
+
+    return this.api.projects.create(payload).pipe(
+      map((dto: ProjectDTO) => {
+        return Project.fromApi(dto);
+      })
+    );
+  }
+
+  get(id: string): Observable<Project> {
+    return this.api.projects.get(id).pipe(map(Project.fromApi));
+  }
+
+  getTask(projectId: string): Observable<Task[]> {
+    return this.api.projects.tasks.list(projectId)
+  }
+}
