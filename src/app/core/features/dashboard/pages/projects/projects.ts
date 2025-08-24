@@ -1,18 +1,17 @@
 import {Component, DestroyRef, inject, signal} from '@angular/core';
 import {Drawer} from 'primeng/drawer';
 import {SquareIconButton} from '../../../../components/buttons/square-icon-button/square-icon-button';
-import {Box, ChevronRight, House, LucideAngularModule, Pen, Plus, Ticket, TicketCheck} from 'lucide-angular';
+import {Box, ChevronRight, House, LucideAngularModule, Pen, Plus} from 'lucide-angular';
 import {TopBarDashboard} from '../../../../components/layout/top-bar-dashboard/top-bar-dashboard';
-import {TagPill} from '../../../../components/pills/tag-pill/tag-pill';
 import {ALL_TAGS, labelOf, Tag} from '../../../../models/enum/tag';
 import {ProjectCell} from '../../../../components/projects/project-cell/project-cell';
-import {Project} from '../../../../models/project';
 import {ProjectRepository} from '../../../../repositories/projectRepository';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Dialog} from 'primeng/dialog';
 import {Select} from 'primeng/select';
 import {FormsModule} from '@angular/forms';
 import {PrimeTemplate} from 'primeng/api';
+import {ProjectDTO} from '../../../../models/dtos/dto';
 
 @Component({
   selector: 'app-projects',
@@ -33,7 +32,7 @@ import {PrimeTemplate} from 'primeng/api';
 export class Projects {
   private readonly repo = inject(ProjectRepository);
   private readonly destroyRef = inject(DestroyRef);
-  projects = signal<Project[]>([]);
+  projects = signal<ProjectDTO[]>([]);
   loading = signal<boolean>(true);
   error = signal<string | undefined>(undefined);
 
@@ -41,20 +40,18 @@ export class Projects {
   detailsProjectSidebar: boolean = false;
   createProjectDialog: boolean = false;
   creating = false;
-  selectedProject: Project | undefined = undefined;
+  selectedProject: ProjectDTO | undefined = undefined;
 
   projectName = '';
   projectDescription = '';
   selectedTag: Tag | undefined = undefined
 
   protected readonly ALL_TAGS = ALL_TAGS;
-  protected readonly TagPill = TagPill;
-  protected readonly Tag = Tag;
-  protected readonly TicketCheck = TicketCheck;
-  protected readonly Ticket = Ticket;
   protected readonly Plus = Plus;
   protected readonly Pen = Pen;
   protected readonly labelOf = labelOf;
+  protected readonly Box = Box;
+  protected readonly ChevronRight = ChevronRight;
 
   constructor() {
     this.repo.list()
@@ -91,7 +88,7 @@ export class Projects {
       });
   }
 
-  openProjectDetails(project: Project) {
+  openProjectDetails(project: ProjectDTO) {
     this.selectedProject = project;
     this.detailsProjectSidebar = true;
 
@@ -102,7 +99,4 @@ export class Projects {
     this.projectDescription = '';
     this.selectedTag = undefined;
   }
-
-  protected readonly Box = Box;
-  protected readonly ChevronRight = ChevronRight;
 }

@@ -4,13 +4,18 @@ import {TagPill} from "../../pills/tag-pill/tag-pill";
 import {Task} from '../../../models/task';
 import {DatePipe} from '@angular/common';
 import {environment} from '../../../../../environments/environment';
+import {Tooltip} from 'primeng/tooltip';
+import { TooltipModule } from 'primeng/tooltip';
+
 
 @Component({
   selector: 'app-task-cell',
   imports: [
     LucideAngularModule,
     TagPill,
-    DatePipe
+    DatePipe,
+    Tooltip,
+    TooltipModule
   ],
   templateUrl: './task-cell.html',
   styleUrl: './task-cell.css'
@@ -21,5 +26,9 @@ export class TaskCell {
 
   getAssigneeProfileImage() : string | undefined {
     return this.task.assignee?.profileImageUrl
+  }
+
+  getAssigneeUsername() : string | undefined {
+    return this.task.assignee?.username
   }
 }

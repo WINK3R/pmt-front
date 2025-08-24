@@ -19,6 +19,7 @@ import {ALL_TAGS, labelOf} from '../../../../models/enum/tag';
 import {AuthService} from '../../../../services/auth/authService';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {TaskRepository} from '../../../../repositories/TaskRepository';
+import {TaskDetailsDrawer} from './task-details-drawer/task-details-drawer';
 
 @Component({
   selector: 'app-details-project',
@@ -34,7 +35,8 @@ import {TaskRepository} from '../../../../repositories/TaskRepository';
     PrimeTemplate,
     ReactiveFormsModule,
     Select,
-    FormsModule
+    FormsModule,
+    TaskDetailsDrawer
   ],
   templateUrl: './details-project.html',
   styleUrl: './details-project.css'
@@ -45,10 +47,12 @@ export class DetailsProject {
   private readonly repoTask = inject(TaskRepository);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  detailsTaskSidebar: boolean = false;
   project: Project | undefined = undefined;
   createTaskDialog: boolean = false;
   taskPriority: TaskPriority | undefined = undefined;
   taskStatus: TaskStatus = TaskStatus.TODO;
+  selectedTask: Task | undefined = undefined;
   taskTitle: string = '';
   taskDescription: string = '';
   taskTag: string = '';
@@ -88,8 +92,15 @@ export class DetailsProject {
         event.previousIndex,
         event.currentIndex
       );
+      const movedTask = event.container.data[event.currentIndex] as Task;
+      const newStatus = this.columns.find(c => c.id === event.container.id)?.status;
+
+      if (movedTask && newStatus && movedTask.status !== newStatus) {
+        this.repoTask.updateTaskStatus(movedTask.id, newStatus)
+      }
     }
   }
+
 
   protected readonly Plus = Plus;
   protected readonly ALL_TAGS = ALL_TAGS;
@@ -184,6 +195,15 @@ export class DetailsProject {
           console.error(err);
         }
       });
+  }
+
+  openDetailsTaskSidebar(task: Task) {
+    this.selectedTask = task;
+    this.detailsTaskSidebar = true;
+  }
+
+  onTaskChange(e: Task) {
+    //TODO : manage change and update in api
   }
 
 

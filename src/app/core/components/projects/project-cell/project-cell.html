@@ -12,11 +12,11 @@
     <div class="flex gap-2">
       <div class="flex gap-1.5 w-fit text-xs rounded-xl py-1 px-3 bg-teal-100 text-emerald-800 items-center">
         <lucide-icon [img]="TicketCheck" class="h-5 w-5 -rotate-12"></lucide-icon>
-        <span class="font-black text-lg">{{ doneCount }}</span>
+        <span class="font-black text-lg">{{ project.completedTasks }}</span>
       </div>
       <div class="flex gap-1.5 w-fit text-xs rounded-xl py-1 px-3 text-gray-400 items-center">
         <lucide-icon [img]="Ticket" class="h-5 w-5 -rotate-12"></lucide-icon>
-        <span class="font-black text-lg text-dark-text">{{ openCount }}</span>
+        <span class="font-black text-lg text-dark-text">{{ project.openTasks }}</span>
       </div>
     </div>
   </div>

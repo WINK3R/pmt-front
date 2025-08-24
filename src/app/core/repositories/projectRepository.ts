@@ -10,23 +10,18 @@ import {Task} from '../models/task';
 export class ProjectRepository {
   constructor(private api: ApiService) {}
 
-  list(): Observable<Project[]> {
+  list(): Observable<ProjectDTO[]> {
     return this.api.projects.list()
-      .pipe(map((dtos: ProjectDTO[]) => dtos.map(Project.fromApi)));
   }
 
-  create(input: { name: string; description?: string | undefined; tag?: Tag }): Observable<Project> {
+  create(input: { name: string; description?: string | undefined; tag?: Tag }): Observable<ProjectDTO> {
     const payload: Partial<ProjectDTO> = {
       name: input.name,
       description: input.description ?? undefined,
       tag: input.tag ?? undefined,
     };
 
-    return this.api.projects.create(payload).pipe(
-      map((dto: ProjectDTO) => {
-        return Project.fromApi(dto);
-      })
-    );
+    return this.api.projects.create(payload)
   }
 
   get(id: string): Observable<Project> {

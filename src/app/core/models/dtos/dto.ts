@@ -6,7 +6,7 @@ import {TaskStatus} from '../enum/taskStatus';
 
 export interface UserDTO {
   id: string;
-  fullName?: string;
+  username?: string;
   profileImageUrl?: string;
 }
 
@@ -18,6 +18,8 @@ export interface ProjectDTO {
   startDate?: string | undefined;
   createdBy: UserDTO;
   createdAt: string;
+  openTasks: number;
+  completedTasks: number;
 }
 
 export type ProjectRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER' | string;
