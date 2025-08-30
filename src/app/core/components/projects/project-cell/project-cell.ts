@@ -4,13 +4,15 @@ import {TagPill} from "../../pills/tag-pill/tag-pill";
 import {SquareIconButton} from '../../buttons/square-icon-button/square-icon-button';
 import {Router} from '@angular/router';
 import {ProjectDTO} from '../../../models/dtos/dto';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-project-cell',
   imports: [
     LucideAngularModule,
     TagPill,
-    SquareIconButton
+    SquareIconButton,
+    Tooltip
   ],
   templateUrl: './project-cell.html',
   styleUrl: './project-cell.css'
