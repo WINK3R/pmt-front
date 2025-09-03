@@ -1,0 +1,78 @@
+@if(member.role == Role.OWNER){
+<div class="w-full flex items-center justify-between">
+  <div class="flex w-fit  min-w-56 h-fit p-2 justify-between rounded-xl items-center bg-black text-white">
+    <div class="flex gap-2 items-center">
+      <img
+        [src] = "environment.apiUrl + (member.user.profileImageUrl)"
+        alt="profile avatar"
+        class="rounded-md h-8 w-8"/>
+      <span class="font-medium">{{ member.user.username }}</span>
+    </div>
+    @if(member.role == Role.OWNER){
+      <lucide-icon [img]="Crown" class="text-yellow-300 rotate-12 mr-1"/>
+    }
+  </div>
+  <div
+    class="flex px-4 py-1 rounded-lg font-medium"
+    [ngClass]="roleBadgeClasses(member.role)"
+  >
+    {{ labelOfRole(member.role) }}
+  </div>
+</div>
+} @else if (selectedRole) {
+  @if(this.canManageRole){
+    <div class="w-full flex items-center justify-between">
+      <div class="flex w-fit  min-w-56 h-fit p-2 justify-between rounded-xl items-center bg-gray-100 text-dark-text'}}">
+        <div class="flex gap-2 items-center">
+          <img
+            [src] = "environment.apiUrl + (member.user.profileImageUrl)"
+            alt="profile avatar"
+            class="rounded-md h-8 w-8"/>
+          <span class="font-medium">{{ member.user.username }}</span>
+        </div>
+      </div>
+      <div>
+        <p-select
+          [options]="roles"
+          [(ngModel)]="selectedRole"
+          optionLabel="name"
+          placeholder="Select role">
+          <ng-template #selectedItem>
+            <div
+              class="flex px-4 py-1 pr-2 gap-2 rounded-lg font-medium"
+              [ngClass]="roleBadgeClasses(selectedRole)">
+              {{ labelOfRole(selectedRole) }}
+              <lucide-icon [img]="ChevronDown" />
+            </div>
+          </ng-template>
+          <ng-template let-role #item>
+            <button
+              class="flex w-full justify-start px-4 py-1 rounded-md"
+              [ngClass]="roleBadgeClasses(role)"
+              (click)="choose(role)">
+              {{ labelOfRole(role) }}
+            </button>
+          </ng-template>
+        </p-select>
+      </div>
+    </div>
+  } @else {
+    <div class="w-full flex items-center justify-between">
+      <div class="flex w-fit  min-w-56 h-fit p-2 justify-between rounded-xl items-center bg-gray-100 text-dark-text'}}">
+        <div class="flex gap-2 items-center">
+          <img
+            [src] = "environment.apiUrl + (member.user.profileImageUrl)"
+            alt="profile avatar"
+            class="rounded-md h-8 w-8"/>
+          <span class="font-medium">{{ member.user.username }}</span>
+        </div>
+      </div>
+      <div
+        class="flex px-4 py-1 rounded-lg font-medium"
+        [ngClass]="roleBadgeClasses(member.role)"
+      >
+        {{ labelOfRole(member.role) }}
+      </div>
+    </div>
+  }
+}

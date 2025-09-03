@@ -1,0 +1,21 @@
+.memberSelect.p-select{
+  margin: 0;
+  padding: 0 !important;
+  border: none;
+  box-shadow: none;
+  background-color: var(--color-gray-100);
+  border-radius: 8px;
+  min-width: 11.5rem !important;
+}
+
+.memberSelect.p-select-label{
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.p-select-dropdown	{
+  display: none !important;
+}
+.memberSelect.p-select-option{
+  padding: 0 !important;
+}

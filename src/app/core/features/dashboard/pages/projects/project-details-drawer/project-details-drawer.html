@@ -1,0 +1,104 @@
+<p-drawer
+  [visible]="visible"
+  (onHide)="handleHide()"
+  [style]="{ width: '40%' }"
+  position="right">
+  @if (editableProject) {
+    <div class="flex flex-col gap-4 ">
+      <div class="flex flex-col gap-2 mb-4">
+        <div class="flex gap-2 items-start">
+          <textarea
+            class="text-3xl font-black text-dark-text py-1
+                   border-0 outline-none focus:outline-none
+                   focus:ring-0 focus:border-transparent focus:shadow-none w-full
+                   appearance-none field-sizing-content "
+            placeholder="What you want to do next ?"
+            [(ngModel)]="editableProject.name"
+            [ngModelOptions]="{ standalone: true }"
+          ></textarea>
+          <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-2"></lucide-icon>
+        </div>
+        <div class="flex flex-col">
+          <p-select
+            [options]="ALL_TAGS"
+            placeholder="Select a Tag"
+            [(ngModel)]="editableProject.tag"
+            class="w-full md:w-56">
+            <ng-template pTemplate="item" let-opt>
+              {{ labelOf(opt) }}
+            </ng-template>
+            <ng-template pTemplate="selectedItem" let-value>
+              {{ value ? labelOf(value) : 'Select a Status' }}
+            </ng-template>
+          </p-select>
+        </div>
+      </div>
+      <div>
+        <span class="font-bold">Description</span>
+        <div class="flex gap-2 items-start">
+        <textarea
+          class="w-full border-0 outline-none field-sizing-content"
+          [(ngModel)]="editableProject.description"
+          [ngModelOptions]="{ standalone: true }"
+        ></textarea>
+          <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-2"></lucide-icon>
+        </div>
+      </div>
+      <div class="flex flex-col">
+        <div class="flex gap-2 pb-4">
+          <lucide-icon [img]="Users" />
+          <span class="font-bold">Team</span>
+        </div>
+        <div class="flex flex-col gap-2 ">
+          <div class="flex flex-col w-full gap-2">
+            @for (m of members(); track $index) {
+              <app-user-member-row [member]="m" [canManageRole]="canChangeRole()" (roleChange)="onRoleChange($event)"/>
+            }
+            @for (m of invitations(); track m.id) {
+              <div class="w-full flex items-center justify-between">
+                <div class="flex w-fit  min-w-56 bg-gray-200 h-fit p-2 justify-between rounded-xl items-center">
+                  <div class="flex gap-2 items-center">
+                    <img
+                      [src] = "environment.apiUrl + (m.invitedUser.profileImageUrl ?? '/assets/default-avatar.png')"
+                      alt="profile avatar"
+                      class="rounded-md h-8 w-8"/>
+                    <span class="text-dark-text font-medium">{{ m.invitedUser.username }}</span>
+                  </div>
+                </div>
+                <div class="flex gap-1 items-center justify-center px-4 bg-gray-100 py-1 rounded-full text-dark-text">
+                  <span>{{ labelOfInvitation(m.status) }}</span>
+                  <lucide-icon [img]="Hourglass" class="w-4 h-4 rotate-12 animate-wiggle"/>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="flex items-center relative overflow-hidden p-1 {{ addMemberClicked ? 'gap-2' : ''}} transition-all ease-in-out">
+            <div class="relative {{ addMemberClicked ? 'w-full' : 'w-0'}} transition-all" >
+              <input
+                #teammateInput
+                placeholder="Enter Email"
+                class=" {{ addMemberClicked ? 'w-full px-3 ' : 'w-0'}} bg-gray-100 h-12 transition-all ease-in-out rounded-xl focus:ring-2 ring-gray-300 placeholder-gray-400 font-medium focus:outline-none text-lg capitalize">
+              <lucide-icon [img]="UserPlus" class="absolute top-1.5 right-1.5 hover:scale-105 opacity-60 hover:opacity-100 transition-all cursor-pointer "
+              (click)="inviteMember()"/>
+            </div>
+            <div class="bg-gray-300  {{addMemberClicked ? 'w-10 h-10' : 'w-full h-12'}} flex items-center justify-center gap-1 rounded-xl transition-all ease-in-out {{ canInvite() ? 'opacity-60 hover:opacity-100 cursor-pointer' : 'opacity-20 cursor-not-allowed'}}"
+             (click)="canInvite() && (addMemberClicked ? (addMemberClicked = false) : toggleAddMember())"
+             pTooltip="You do not have the permission to invite"
+             [tooltipDisabled]="canInvite()"
+             tooltipPosition="bottom"
+            >
+              @if(!addMemberClicked){
+                <lucide-icon [img]="Plus" class="w-5 h-5" />
+                Add a Teammate
+              } @else {
+                <lucide-icon
+                  [img]="X"
+                />
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</p-drawer>

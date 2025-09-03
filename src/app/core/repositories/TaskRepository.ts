@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ApiService } from '../services/apiService';
 import { Task } from '../models/task';
-import { CreateTaskRequest } from '../models/dtos/dto';
+import {CreateTaskRequest, ProjectDTO, TaskDTO} from '../models/dtos/dto';
 import {TaskStatus} from '../models/enum/taskStatus';
 
 @Injectable({ providedIn: 'root' })
@@ -18,15 +18,30 @@ export class TaskRepository {
       .pipe(map(Task.fromApi));
   }
 
+  update(id:string, task: Partial<Task>){
+    const payload: Partial<TaskDTO> = {
+      ...task,
+      dueDate: task.dueDate?.toString(),
+      createdAt: task.createdBy?.toString(),
+      updatedAt: task.updatedAt?.toString()
+    };
+    return this.api.tasks.update(id, payload)
+      .pipe(map(Task.fromApi));
+  }
+
   create(input: CreateTaskRequest): Observable<Task> {
     return this.api.tasks.create(input)
       .pipe(map(Task.fromApi));
   }
 
   updateTaskStatus(taskId: string, newStatus: TaskStatus) {
-    this.api.tasks.update(taskId, { status: newStatus }).subscribe({
+    return this.api.tasks.update(taskId, { status: newStatus }).subscribe({
       next: (res) => console.log('Task updated', res),
       error: (err) => console.error('Failed to update task', err)
     });
+  }
+
+  getTaskHistory(taskId: string) {
+    return this.api.tasks.history(taskId)
   }
 }

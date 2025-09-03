@@ -1,0 +1,31 @@
+.p-select{
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+:host ::ng-deep .p-select-label{
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+:host ::ng-deep .p-select-dropdown	{
+  display: none !important;
+}
+:host ::ng-deep .p-select-option	{
+  padding: 0 !important;
+  margin: 0 !important;
+}
+:host ::ng-deep .p-select-overlay{
+  padding: 4px !important;
+  border-radius: 8px !important;
+}
+
+:host ::ng-deep .p-select-option	{
+  margin-bottom: 4px !important;
+}
+:host ::ng-deep .p-overlay	{
+  left: unset !important;
+  right: 0 !important;
+  margin-top: 6px !important;
+}

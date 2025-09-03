@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, Signal, signal} from '@angular/core';
 import {SquareIconButton} from '../../../../components/buttons/square-icon-button/square-icon-button';
 import {TopBarDashboard} from '../../../../components/layout/top-bar-dashboard/top-bar-dashboard';
 import {Box, ChevronRight, House, LucideAngularModule, Pen, Plus} from 'lucide-angular';
@@ -20,6 +20,9 @@ import {AuthService} from '../../../../services/auth/authService';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {TaskRepository} from '../../../../repositories/TaskRepository';
 import {TaskDetailsDrawer} from './task-details-drawer/task-details-drawer';
+import {DatePicker} from 'primeng/datepicker';
+import {ProjectMembershipDTO} from '../../../../models/dtos/dto';
+import {ProjectPolicyService} from '../../../../politicy/projectPolicyService';
 
 @Component({
   selector: 'app-details-project',
@@ -32,6 +35,7 @@ import {TaskDetailsDrawer} from './task-details-drawer/task-details-drawer';
     CdkDrag,
     NgClass,
     Dialog,
+    DatePicker,
     PrimeTemplate,
     ReactiveFormsModule,
     Select,
@@ -47,6 +51,8 @@ export class DetailsProject {
   private readonly repoTask = inject(TaskRepository);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  protected readonly policyService = inject(ProjectPolicyService);
+
   detailsTaskSidebar: boolean = false;
   project: Project | undefined = undefined;
   createTaskDialog: boolean = false;
@@ -56,15 +62,28 @@ export class DetailsProject {
   taskTitle: string = '';
   taskDescription: string = '';
   taskTag: string = '';
+  taskDueDate: Date | undefined;
   loading = signal<boolean>(true);
   error = signal<string | undefined>(undefined);
   tasks = signal<Task[]>([]);
+  members = signal<ProjectMembershipDTO[]>([]);
+  me: Signal<ProjectMembershipDTO | undefined> = computed(() => {
+    const list = this.members() ?? [];
+    const meId = this.auth.currentUser!.id;
+    return list.find(m => m.user.id === meId);
+  });
+
   creating = false;
 
   protected readonly Box = Box;
   protected readonly House = House;
   protected readonly ChevronRight = ChevronRight;
   private readonly destroyRef = inject(DestroyRef);
+
+  canCreateTask = computed(() => {
+    const me = this.me();
+    return !!me && this.policyService.canEditTask(me).allowed;
+  })
 
   goHome(): void {
     this.router.navigate(['/dashboard']);
@@ -126,11 +145,11 @@ export class DetailsProject {
       title: this.taskTitle.trim(),
       description: this.taskDescription?.trim(),
       label: this.taskTag,
-      dueDate: new Date().toISOString(),
+      dueDate: this.taskDueDate?.toISOString(),
       priority: this.taskPriority ?? TaskPriority.MEDIUM,
       status: this.taskStatus,
       projectId: this.project.id,
-      assigneeId: this.auth.currentUser.id,
+      assigneeId: undefined,
       createdById: this.auth.currentUser.id,
       updatedById: this.auth.currentUser.id,
       createdAt: new Date().toISOString(),
@@ -188,6 +207,11 @@ export class DetailsProject {
                 console.error(e);
               }
             });
+
+          this.repoProject.getProjectMembers(project.id).subscribe({
+            next: (list) => { this.members.set(list); this.loading.set(false); },
+            error: (err) => console.error('Failed to fetch members', err)
+          });
         },
         error: (err) => {
           this.error.set('Projet introuvable');
@@ -202,9 +226,36 @@ export class DetailsProject {
     this.detailsTaskSidebar = true;
   }
 
-  onTaskChange(e: Task) {
-    //TODO : manage change and update in api
+  applyTaskToBoard(updated: Task) {
+    // update the selected reference
+    if (this.selectedTask?.id === updated.id) {
+      this.selectedTask = updated;
+    }
+
+    // also replace/move in your columns
+    const fromIdx = this.columns.findIndex(c => c.tasks.some(t => t.id === updated.id));
+    if (fromIdx === -1) return;
+
+    const fromCol = this.columns[fromIdx];
+    const taskIdx = fromCol.tasks.findIndex(t => t.id === updated.id);
+    const old = fromCol.tasks[taskIdx];
+
+    if (old.status === updated.status) {
+      const tasks = [...fromCol.tasks];
+      tasks[taskIdx] = { ...old, ...updated };
+      this.columns = this.columns.map((c, i) =>
+        i === fromIdx ? { ...c, tasks } : c
+      );
+    } else {
+      const fromTasks = [...fromCol.tasks];
+      fromTasks.splice(taskIdx, 1);
+      const toIdx = this.columns.findIndex(c => c.status === updated.status);
+      if (toIdx === -1) return;
+      const toTasks = [updated, ...this.columns[toIdx].tasks];
+      this.columns = this.columns.map((c, i) =>
+        i === fromIdx ? { ...c, tasks: fromTasks } :
+          i === toIdx   ? { ...c, tasks: toTasks } : c
+      );
+    }
   }
-
-
 }

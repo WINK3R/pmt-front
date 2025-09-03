@@ -1,11 +1,18 @@
 <div class="h-full">
-  <app-top-bar-dashboard class="sticky top-0 z-10">
-    <app-square-icon-button [icon]="House" />
-    <lucide-icon [img]="ChevronRight" class="opacity-60"/>
-    <div class="flex gap-1">
-      <lucide-icon [img]="Box" class="opacity-60"/>
-      <h1 class="text-md font-bold text-dark-text">Projects</h1>
-
+  <app-top-bar-dashboard class="sticky top-0 z-10 justify-between">
+    <div class="flex items-center w-full">
+      <app-square-icon-button [icon]="House" />
+      <lucide-icon [img]="ChevronRight" class="opacity-60"/>
+      <div class="flex gap-1">
+        <lucide-icon [img]="Box" class="opacity-60"/>
+        <h1 class="text-md font-bold text-dark-text">Projects</h1>
+      </div>
+    </div>
+    <div class="relative">
+      <app-square-icon-button [icon]="BellDot" (click)="openInvitationDrawer()"/>
+    @if(invitations().length > 0){
+      <h1 class="absolute top-0 right-0 m-0.5 text-xs bg-indigo-500 w-4 h-4 flex justify-center items-center rounded-full text-white pointer-events-none font-bold">{{invitations().length}}</h1>
+    }
     </div>
   </app-top-bar-dashboard>
   <div class="flex-1 overflow-y-auto p-6 bg-slate-50 h-full">
@@ -22,9 +29,16 @@
     </div>
   </div>
 
-  <p-drawer [(visible)]="detailsProjectSidebar" position="right">
-    <h3>{{ selectedProject?.name }}</h3>
-  </p-drawer>
+  <app-project-details-drawer
+    [project]="selectedProject"
+    [(visible)]="detailsProjectSidebar"
+    (projectChange)="onProjectChange($event)">
+  </app-project-details-drawer>
+
+  <app-project-invitations-drawer
+    [(visible)]="invitationsDrawer"
+    (refreshProjectList)="onInvitationsDrawerVisible()">
+  </app-project-invitations-drawer>
   <p-dialog
     [(visible)]="createProjectDialog"
     [modal]="true"

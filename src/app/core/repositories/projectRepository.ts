@@ -3,8 +3,9 @@ import { map, Observable } from 'rxjs';
 import { ApiService } from '../services/apiService';
 import { Project } from '../models/project';
 import { Tag } from '../models/enum/tag';
-import type {ProjectDTO} from '../models/dtos/dto';
+import {InvitationDTO, ProjectDTO, ProjectMembershipDTO, UserDTO} from '../models/dtos/dto';
 import {Task} from '../models/task';
+import {Role} from '../models/enum/role';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectRepository {
@@ -31,4 +32,16 @@ export class ProjectRepository {
   getTask(projectId: string): Observable<Task[]> {
     return this.api.projects.tasks.list(projectId)
   }
+
+  getProjectMembers(projectId: string): Observable<ProjectMembershipDTO[]> {
+    return this.api.projects.members.list(projectId)
+  }
+
+  getProjectInvitations(projectId: string): Observable<InvitationDTO[]> {
+    return this.api.projects.invitations.byProject(projectId)
+  }
+  updateMemberRole(projectId: string, membershipId: string, role: Role) {
+    return this.api.projects.members.updateRole(projectId, membershipId, role)
+  }
+
 }

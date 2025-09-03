@@ -12,7 +12,7 @@ export interface LoginResponse { accessToken: string; email: string; }
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = 'http://localhost:8080/api/auth';
 
   private userSubject = new BehaviorSubject<UserDTO | undefined>(undefined);
   user$ = this.userSubject.asObservable();

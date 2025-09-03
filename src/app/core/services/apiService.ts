@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   UserDTO, ProjectDTO, TaskDTO, TaskHistoryDTO, ProjectMembershipDTO,
-  NotificationDTO, InvitationDTO, CreateTaskRequest
+  NotificationDTO, InvitationDTO, CreateTaskRequest, InvitationCreationDTO
 } from '../models/dtos/dto';
 import {Task} from '../models/task';
 
@@ -58,7 +58,24 @@ export class ApiService {
 
       remove: (projectId: string, membershipId: string): Observable<void> =>
         this.http.delete<void>(this.url(`/projects/${projectId}/members/${membershipId}`)),
+
+      updateRole: (projectId: string, membershipId: string, role: string): Observable<void> =>
+        this.http.put<void>(this.url(`/projects/${projectId}/members/${membershipId}/role`), { role }),
     },
+
+    invitations: {
+      byProject: (projectId: string): Observable<InvitationDTO[]> =>
+        this.http.get<InvitationDTO[]>(this.url(`/projects/${projectId}/invitations`)),
+
+      createForProject: (projectId: string, emailInvited: string): Observable<InvitationDTO> =>
+        this.http.post<InvitationDTO>(this.url(`/projects/${projectId}/invitations`), { emailInvited }),
+
+      create: (body: InvitationCreationDTO): Observable<InvitationDTO> =>
+        this.http.post<InvitationDTO>(this.url('/invitations'), body),
+
+      list: (): Observable<InvitationDTO[]> =>
+        this.http.get<InvitationDTO[]>(this.url('/invitations')),
+    }
   };
 
 
@@ -85,20 +102,6 @@ export class ApiService {
       this.http.get<TaskHistoryDTO[]>(this.url(`/tasks/${taskId}/history`)),
   };
 
-
-  taskHistory = {
-    list: (): Observable<TaskHistoryDTO[]> => this.http.get<TaskHistoryDTO[]>(this.url('/task-history')),
-    create: (body: Partial<TaskHistoryDTO>): Observable<TaskHistoryDTO> =>
-      this.http.post<TaskHistoryDTO>(this.url('/task-history'), body),
-    get: (id: string): Observable<TaskHistoryDTO> =>
-      this.http.get<TaskHistoryDTO>(this.url(`/task-history/${id}`)),
-    byTask: (taskId: string): Observable<TaskHistoryDTO[]> =>
-      this.http.get<TaskHistoryDTO[]>(this.url(`/task-history/by-task/${taskId}`)),
-    byTaskOrdered: (taskId: string): Observable<TaskHistoryDTO[]> =>
-      this.http.get<TaskHistoryDTO[]>(this.url(`/task-history/by-task-ordered/${taskId}`)),
-  };
-
-
   notifications = {
     list: (): Observable<NotificationDTO[]> =>
       this.http.get<NotificationDTO[]>(this.url('/notifications')),
@@ -116,16 +119,14 @@ export class ApiService {
       this.http.patch<NotificationDTO>(this.url(`/notifications/${id}/mark-sent`), {}),
   };
 
-
   invitations = {
     list: (): Observable<InvitationDTO[]> =>
       this.http.get<InvitationDTO[]>(this.url('/invitations')),
-    create: (body: Partial<InvitationDTO>): Observable<InvitationDTO> =>
-      this.http.post<InvitationDTO>(this.url('/invitations'), body),
-    get: (id: string): Observable<InvitationDTO> =>
-      this.http.get<InvitationDTO>(this.url(`/invitations/${id}`)),
-    byToken: (token: string): Observable<InvitationDTO> =>
-      this.http.get<InvitationDTO>(this.url(`/invitations/by-token/${token}`)),
-  };
 
+    accept: (invitationId: string): Observable<ProjectMembershipDTO> =>
+      this.http.post<ProjectMembershipDTO>(this.url(`/invitations/${invitationId}/accept`), {}),
+
+    reject: (invitationId: string): Observable<ProjectMembershipDTO> =>
+      this.http.post<ProjectMembershipDTO>(this.url(`/invitations/${invitationId}/reject`), {}),
+  }
 }

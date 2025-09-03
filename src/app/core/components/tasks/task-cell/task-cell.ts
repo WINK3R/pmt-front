@@ -2,7 +2,7 @@ import {Component, Input} from '@angular/core';
 import {LucideAngularModule} from "lucide-angular";
 import {TagPill} from "../../pills/tag-pill/tag-pill";
 import {Task} from '../../../models/task';
-import {DatePipe} from '@angular/common';
+import {DatePipe, NgOptimizedImage} from '@angular/common';
 import {environment} from '../../../../../environments/environment';
 import {Tooltip} from 'primeng/tooltip';
 import { TooltipModule } from 'primeng/tooltip';
@@ -15,7 +15,8 @@ import { TooltipModule } from 'primeng/tooltip';
     TagPill,
     DatePipe,
     Tooltip,
-    TooltipModule
+    TooltipModule,
+    NgOptimizedImage
   ],
   templateUrl: './task-cell.html',
   styleUrl: './task-cell.css'

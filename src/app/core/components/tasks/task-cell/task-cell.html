@@ -7,13 +7,14 @@
     </div>
     <div class="w-full flex gap-2 items-end justify-between">
       <h1 class="text-dark-text font-semibold text-md line-clamp-3 text-start opacity-60">{{ task.createdAt | date: 'd MMM y' }}</h1>
-      <img [src] = "environment.apiUrl + (getAssigneeProfileImage())"
-           alt="profile avatar"
-           class="rounded-full h-8 w-8"
-           [pTooltip]="getAssigneeUsername()"
-           tooltipPosition="bottom"
-      />
+      @if(task.assignee){
+        <img [ngSrc]="environment.apiUrl + (getAssigneeProfileImage())"
+             alt="profile avatar"
+             class="rounded-full"
+             [pTooltip]="getAssigneeUsername()"
+             tooltipPosition="bottom"
+             width="32" height="32"/>
+      }
     </div>
-
   </div>
 </button>

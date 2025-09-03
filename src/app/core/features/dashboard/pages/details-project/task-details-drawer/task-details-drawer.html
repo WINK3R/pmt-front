@@ -3,9 +3,17 @@
   position="right"
   [style]="{ width: '40%' }"
   (onHide)="handleHide()"
+  #drawerRef
 >
+  <ng-template #headless>
   @if (editableTask) {
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 p-5 overflow-y-auto">
+      <div class="w-full flex gap-2 justify-between">
+        <app-round-icon-button [icon]="X" (click)="handleHide()"/>
+      @if(canEditTask()){
+        <app-round-icon-button [icon]="Trash" [disabled]="!canEditTask()" colorClass="hover:bg-red-100 text-red-500"></app-round-icon-button>
+      }
+        </div>
       <div class="flex gap-2 items-start">
         <textarea
           class="text-3xl font-black text-dark-text py-1
@@ -15,27 +23,37 @@
           placeholder="What you want to do next ?"
           [(ngModel)]="editableTask.title"
           [ngModelOptions]="{ standalone: true }"
+          [disabled]="!canEditTask()"
+          (ngModelChange)="onFieldChange({ title: $event })"
         ></textarea>
-        <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-2"></lucide-icon>
+        @if(canEditTask()){
+          <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-2"></lucide-icon>
+        }
       </div>
-      <div>
+      <div class="flex flex-col gap-1">
         <span class="font-bold">Description</span>
         <div class="flex gap-2 items-start">
         <textarea
           class="w-full border-0 outline-none field-sizing-content"
           [(ngModel)]="editableTask.description"
           [ngModelOptions]="{ standalone: true }"
+          [disabled]="!canEditTask()"
+          (ngModelChange)="onFieldChange({ description: editableTask.description })"
         ></textarea>
+          @if(canEditTask()){
           <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-2"></lucide-icon>
+          }
         </div>
       </div>
       <div class="flex gap-2">
-        <div class="flex flex-col">
+        <div class="flex flex-col gap-2">
           <span class="font-bold text-dark-text">Priority</span>
           <p-select
             [options]="ALL_PRIORITY"
             placeholder="Select a Priority"
             [(ngModel)]="editableTask.priority"
+            [disabled]="!canEditTask()"
+            (ngModelChange)="onFieldChange({ priority: $event })"
             class="w-full md:w-56">
             <ng-template pTemplate="item" let-opt>
               {{ labelOf(opt) }}
@@ -45,12 +63,14 @@
             </ng-template>
           </p-select>
         </div>
-        <div class="flex flex-col">
+        <div class="flex flex-col gap-2">
           <span class="font-bold text-dark-text">Tag</span>
           <p-select
             [options]="ALL_TAGS"
             placeholder="Select a Tag"
             [(ngModel)]="editableTask.label"
+            [disabled]="!canEditTask()"
+            (ngModelChange)="onFieldChange({ label: $event })"
             class="w-full md:w-56">
             <ng-template pTemplate="item" let-opt>
               {{ labelOf(opt) }}
@@ -61,9 +81,88 @@
           </p-select>
         </div>
       </div>
+      <div class="flex flex-col gap-2">
+        <span class="font-bold text-dark-text">Reporter</span>
+        <div class="flex gap-2 items-center bg-gray-100 min-w-46 w-fit p-2 rounded-lg">
+          <img
+            [src] = "environment.apiUrl + (editableTask.createdBy.profileImageUrl)"
+            alt="profile avatar"
+            class="rounded-md h-8 w-8"/>
+          <span class="font-medium">{{ editableTask.createdBy.username }}</span>
+        </div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <span class="font-bold text-dark-text">Assigned Teammate</span>
+        <div>
+        <p-select
+          [options]="memberUsers"
+          [(ngModel)]="editableTask.assignee"
+          [disabled]="!canEditTask()"
+          (ngModelChange)="onFieldChange({ assignee: $event })"
+          placeholder="Select Assignee"
+        class="memberSelect">
+          <ng-template #selectedItem>
+            <div class="flex gap-2 items-center w-fit justify-between">
+              @if(editableTask.assignee){
+                <div class="flex gap-1 items-center">
+                  <img
+                    [src] = "environment.apiUrl + (editableTask.assignee.profileImageUrl)"
+                    alt="profile avatar"
+                    class="rounded-md h-8 w-8"/>
+                  <span class="font-medium">{{ editableTask.assignee.username }}</span>
+                </div>
+
+              } @else{
+                <span class="font-medium">No assigned User</span>
+              }
+            </div>
+          </ng-template>
+          <ng-template let-member #item>
+            <div class="flex gap-2 items-center">
+              <img
+                [src] = "environment.apiUrl + (member.profileImageUrl)"
+                alt="profile avatar"
+                class="rounded-md h-8 w-8"/>
+              <span class="font-medium">{{ member.username }}</span>
+            </div>
+          </ng-template>
+        </p-select>
+        </div>
+
+      </div>
+      <div class="flex flex-col">
+        <span class="font-bold text-dark-text">Due date</span>
+        <p-date-picker [disabled]="!canEditTask()" [(ngModel)]="editableTask.dueDate" class="w-56" (ngModelChange)="onFieldChange({ dueDate: $event })"/>
+      </div>
       <div class="flex flex-col">
         <span class="font-bold text-dark-text">Changes Historic</span>
+        <div class="w-full h-full gap-2 flex flex-col">
+          @for(item of this.historic(); track item.id){
+        <div class="w-full flex flex-col  gap-4 p-4 bg-gray-50 rounded-lg border-1 border-gray-200">
+                <div class="flex gap-4">
+                  <div class="flex gap-1">
+                    <h1>{{item.field}} change to</h1>
+                    <lucide-icon [img]="ArrowRight" class="w-4 opacity-70"/>
+                  </div>
+                  <p class="font-bold flex-1">{{item.newValue}}</p>
+                </div>
+                <div class="flex gap-4">
+                  <div class="flex w-full h-fit justify-between rounded-xl items-end text-dark-text'}}">
+                    <div class="flex gap-2 items-center">
+                      <img
+                        [src] = "environment.apiUrl + (item.changedBy.profileImageUrl)"
+                        alt="profile avatar"
+                        class="rounded-md h-8 w-8"/>
+                      <span class="font-medium">{{ item.changedBy.username }}</span>
+                    </div>
+                    <span>{{ item.changedAt | date: 'd MMM y' }}</span>
+                  </div>
+                </div>
+            </div>
+          }
+        </div>
       </div>
     </div>
   }
+  </ng-template>
 </p-drawer>
