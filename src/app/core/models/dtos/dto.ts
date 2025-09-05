@@ -48,11 +48,16 @@ export interface TaskDTO {
   updatedAt: string;
 }
 
+export interface HistoryValue {
+  text?: string;
+  user?: UserDTO;
+}
+
 export interface TaskHistoryDTO {
   id: string;
   taskId: string;
-  newValue: string;
-  oldValue: string;
+  newValue: HistoryValue;
+  oldValue: HistoryValue;
   field: string;
   changedAt?: string;
   changedBy: UserDTO;

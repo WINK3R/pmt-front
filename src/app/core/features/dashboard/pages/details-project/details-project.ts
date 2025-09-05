@@ -258,4 +258,17 @@ export class DetailsProject {
       );
     }
   }
+
+  onTaskDeleted(deletedId: string) {
+    this.columns = this.columns.map(col => ({
+      ...col,
+      tasks: col.tasks.filter(t => t.id !== deletedId)
+    }));
+
+    if (this.selectedTask?.id === deletedId) {
+      this.selectedTask = undefined;
+      this.detailsTaskSidebar = false;
+    }
+  }
+
 }

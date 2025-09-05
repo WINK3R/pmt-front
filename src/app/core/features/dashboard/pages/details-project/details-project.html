@@ -147,6 +147,7 @@
   [(task)]="selectedTask"
   [(visible)]="detailsTaskSidebar"
   (taskChange)="applyTaskToBoard($event)"
+  (taskDeleted)="onTaskDeleted($event)"
 />
 
 

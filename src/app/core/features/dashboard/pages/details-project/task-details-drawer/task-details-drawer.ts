@@ -7,9 +7,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Drawer } from 'primeng/drawer';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
-import { PrimeTemplate } from 'primeng/api';
-import { LucideAngularModule, ChevronDown, Pen, Trash, X, ArrowRight } from 'lucide-angular';
-
+import {ConfirmationService, MessageService, PrimeTemplate} from 'primeng/api';
+import {LucideAngularModule, Pen, Trash, X, ArrowRight, Info} from 'lucide-angular';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Task } from '../../../../../models/task';
 import { ALL_TAGS, labelOf } from '../../../../../models/enum/tag';
 import { ALL_PRIORITY } from '../../../../../models/enum/taskPriority';
@@ -17,21 +17,23 @@ import { ProjectRepository } from '../../../../../repositories/projectRepository
 import { TaskRepository } from '../../../../../repositories/TaskRepository';
 import {ProjectMembershipDTO, TaskHistoryDTO, UserDTO} from '../../../../../models/dtos/dto';
 import { environment } from '../../../../../../../environments/environment';
-import { labelOfRole, roleBadgeClasses, roles } from '../../../../../models/enum/role';
 import {RoundIconButton} from '../../../../../components/buttons/round-icon-button/round-icon-button';
 import {AuthService} from '../../../../../services/auth/authService';
 import {ProjectPolicyService} from '../../../../../politicy/projectPolicyService';
 import {DatePipe} from '@angular/common';
+import {getTaskFieldLabel} from '../../../../../utils/TaskFieldLabels';
+import {History} from 'lucide-angular/src/icons';
+import {Button} from 'primeng/button';
+import {Warning} from 'postcss';
 
 @Component({
   selector: 'app-task-details-drawer',
   standalone: true,
   imports: [
-    Drawer, FormsModule, LucideAngularModule, PrimeTemplate,
-    Select, DatePicker, RoundIconButton, DatePipe,
-    // your buttons:
-    // RoundIconButton
+    Drawer, FormsModule, LucideAngularModule, PrimeTemplate, ConfirmDialogModule,
+    Select, DatePicker, RoundIconButton, DatePipe, Button,
   ],
+  providers: [ConfirmationService, MessageService],
   templateUrl: './task-details-drawer.html',
   styleUrl: './task-details-drawer.css'
 })
@@ -42,7 +44,7 @@ export class TaskDetailsDrawer {
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() closed = new EventEmitter<void>();
   @Output() taskChange = new EventEmitter<Task>();
-
+  @Output() taskDeleted = new EventEmitter<string>();
   members = signal<ProjectMembershipDTO[]>([]);
   historic = signal<TaskHistoryDTO[]>([]);
   loading = signal<boolean>(true);
@@ -54,6 +56,8 @@ export class TaskDetailsDrawer {
     const meId = this.auth.currentUser!.id;
     return list.find(m => m.user.id === meId);
   });
+
+  constructor(private confirmationService: ConfirmationService, private messageService: MessageService) {}
 
   protected readonly ALL_TAGS = ALL_TAGS;
   protected readonly ALL_PRIORITY = ALL_PRIORITY;
@@ -204,6 +208,26 @@ export class TaskDetailsDrawer {
     this.change$.next(patch);
   }
 
+  confirm() {
+    this.confirmationService.confirm({
+      message: 'Do you want to delete this task?',
+      header: 'Confirm',
+      accept: () => {
+        if(this.task){
+          this.repoTask.delete(this.task.id).subscribe({
+            next: () => { this.taskDeleted.emit(this.task?.id)},
+            error: () => {}
+            }
+          )
+        }
+        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted' });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+      },
+    });
+  }
+
   // icons & helpers
   protected readonly Pen = Pen;
   protected readonly labelOf = labelOf;
@@ -211,4 +235,8 @@ export class TaskDetailsDrawer {
   protected readonly ArrowRight = ArrowRight;
   protected readonly X = X;
   protected readonly Trash = Trash;
+  protected readonly getTaskFieldLabel = getTaskFieldLabel;
+  protected readonly History = History;
+  protected readonly Info = Info;
+  protected readonly Warning = Warning;
 }

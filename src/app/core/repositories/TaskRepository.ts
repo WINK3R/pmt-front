@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ApiService } from '../services/apiService';
 import { Task } from '../models/task';
-import {CreateTaskRequest, ProjectDTO, TaskDTO} from '../models/dtos/dto';
+import {CreateTaskRequest, TaskDTO} from '../models/dtos/dto';
 import {TaskStatus} from '../models/enum/taskStatus';
 
 @Injectable({ providedIn: 'root' })
@@ -43,5 +43,9 @@ export class TaskRepository {
 
   getTaskHistory(taskId: string) {
     return this.api.tasks.history(taskId)
+  }
+
+  delete(taskId: string) {
+    return this.api.tasks.delete(taskId)
   }
 }

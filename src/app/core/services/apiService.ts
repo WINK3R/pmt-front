@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {Observable} from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -17,16 +17,6 @@ export class ApiService {
   private url(path: string): string {
     return `${this.base}${path.startsWith('/') ? '' : '/'}${path}`;
   }
-
-  private buildParams(params?: Record<string, any>): HttpParams | undefined {
-    if (!params) return undefined;
-    let hp = new HttpParams();
-    Object.entries(params).forEach(([k, v]) => {
-      if (v !== undefined) hp = hp.set(k, String(v));
-    });
-    return hp;
-  }
-
 
   users = {
     list: (): Observable<UserDTO[]> => this.http.get<UserDTO[]>(this.url('/users')),
@@ -53,9 +43,6 @@ export class ApiService {
       add: (projectId: string, body: { userId: string; role: string }): Observable<ProjectMembershipDTO> =>
         this.http.post<ProjectMembershipDTO>(this.url(`/projects/${projectId}/members`), body),
 
-      byRole: (projectId: string, role: string): Observable<ProjectMembershipDTO[]> =>
-        this.http.get<ProjectMembershipDTO[]>(this.url(`/projects/${projectId}/members/by-role/${role}`)),
-
       remove: (projectId: string, membershipId: string): Observable<void> =>
         this.http.delete<void>(this.url(`/projects/${projectId}/members/${membershipId}`)),
 
@@ -66,9 +53,6 @@ export class ApiService {
     invitations: {
       byProject: (projectId: string): Observable<InvitationDTO[]> =>
         this.http.get<InvitationDTO[]>(this.url(`/projects/${projectId}/invitations`)),
-
-      createForProject: (projectId: string, emailInvited: string): Observable<InvitationDTO> =>
-        this.http.post<InvitationDTO>(this.url(`/projects/${projectId}/invitations`), { emailInvited }),
 
       create: (body: InvitationCreationDTO): Observable<InvitationDTO> =>
         this.http.post<InvitationDTO>(this.url('/invitations'), body),
@@ -89,14 +73,8 @@ export class ApiService {
     update: (id: string, body: Partial<TaskDTO>): Observable<TaskDTO> =>
       this.http.patch<TaskDTO>(this.url(`/tasks/${id}`), body),
 
-    byProject: (projectId: string): Observable<Task[]> =>
-      this.http.get<Task[]>(this.url(`/tasks/by-project/${projectId}`)),
-
-    byProjectStatus: (projectId: string, status: string): Observable<TaskDTO[]> =>
-      this.http.get<TaskDTO[]>(this.url(`/tasks/by-project-status/${projectId}/${status}`)),
-
-    byAssignee: (assigneeId: string): Observable<TaskDTO[]> =>
-      this.http.get<TaskDTO[]>(this.url(`/tasks/by-assignee/${assigneeId}`)),
+    delete: (id: string): Observable<void> =>
+      this.http.delete<void>(this.url(`/tasks/${id}`)),
 
     history: (taskId: string): Observable<TaskHistoryDTO[]> =>
       this.http.get<TaskHistoryDTO[]>(this.url(`/tasks/${taskId}/history`)),

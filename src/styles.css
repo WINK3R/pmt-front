@@ -16,6 +16,22 @@
       opacity: 100%;
     }
   }
+
+}
+
+@layer base {
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-transparent shadow-sm
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2 bg-gray-50 rounded-full
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-400
+  }
 }
 
 * {
