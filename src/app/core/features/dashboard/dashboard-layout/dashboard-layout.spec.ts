@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DashboardLayout } from './dashboard-layout';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideHttpClient} from '@angular/common/http';
 
 describe('DashboardLayout', () => {
   let component: DashboardLayout;
@@ -8,7 +10,11 @@ describe('DashboardLayout', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardLayout]
+      imports: [DashboardLayout],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
     })
     .compileComponents();
 

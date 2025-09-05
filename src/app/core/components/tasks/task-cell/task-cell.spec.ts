@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { TaskCell } from './task-cell';
+import {TaskStub} from '../../../utils/stubs/taskStub';
 
 describe('TaskCell', () => {
   let component: TaskCell;
@@ -8,12 +8,14 @@ describe('TaskCell', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TaskCell]
-    })
-    .compileComponents();
+      imports: [TaskCell],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TaskCell);
     component = fixture.componentInstance;
+
+    component.task = TaskStub.testTask();
+
     fixture.detectChanges();
   });
 

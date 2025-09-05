@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { LucideAngularModule, LucideIconData} from 'lucide-angular';
+import {LucideAngularModule, LucideIconData} from 'lucide-angular';
 
 @Component({
   selector: 'app-square-icon-button',

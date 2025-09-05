@@ -5,8 +5,8 @@ import {NgClass} from '@angular/common';
 @Component({
   selector: 'app-round-icon-button',
   imports: [
-    LucideAngularModule,
-    NgClass
+    NgClass,
+    LucideAngularModule
   ],
   templateUrl: './round-icon-button.html',
   styleUrl: './round-icon-button.css'

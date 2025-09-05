@@ -35,10 +35,7 @@ export class TaskRepository {
   }
 
   updateTaskStatus(taskId: string, newStatus: TaskStatus) {
-    return this.api.tasks.update(taskId, { status: newStatus }).subscribe({
-      next: (res) => console.log('Task updated', res),
-      error: (err) => console.error('Failed to update task', err)
-    });
+    return this.api.tasks.update(taskId, { status: newStatus })
   }
 
   getTaskHistory(taskId: string) {

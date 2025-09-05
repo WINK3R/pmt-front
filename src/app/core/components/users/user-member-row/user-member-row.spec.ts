@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { UserMemberRow } from './user-member-row';
+import {ProjectMembershipStub} from '../../../utils/stubs/projectMembershipStub';
 
 describe('UserMemberRow', () => {
   let component: UserMemberRow;
@@ -9,11 +9,14 @@ describe('UserMemberRow', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [UserMemberRow]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(UserMemberRow);
     component = fixture.componentInstance;
+
+    component.member = ProjectMembershipStub.testUserMembership();
+
+    component.requester = component.member;
     fixture.detectChanges();
   });
 

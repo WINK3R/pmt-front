@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RoundIconButton } from './round-icon-button';
+import {LucideAngularModule, Trash} from 'lucide-angular';
 
 describe('RoundIconButton', () => {
   let component: RoundIconButton;
@@ -8,12 +9,13 @@ describe('RoundIconButton', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RoundIconButton]
+      imports: [RoundIconButton, LucideAngularModule]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(RoundIconButton);
     component = fixture.componentInstance;
+    component.icon = Trash;
     fixture.detectChanges();
   });
 

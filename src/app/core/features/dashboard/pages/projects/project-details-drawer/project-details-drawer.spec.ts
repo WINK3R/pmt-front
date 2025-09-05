@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProjectDetailsDrawer } from './project-details-drawer';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideHttpClient} from '@angular/common/http';
 
 describe('ProjectDetailsDrawer', () => {
   let component: ProjectDetailsDrawer;
@@ -8,7 +10,11 @@ describe('ProjectDetailsDrawer', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProjectDetailsDrawer]
+      imports: [ProjectDetailsDrawer],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
     })
     .compileComponents();
 

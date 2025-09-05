@@ -7,7 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Drawer } from 'primeng/drawer';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
-import {ConfirmationService, MessageService, PrimeTemplate} from 'primeng/api';
+import {ConfirmationService, PrimeTemplate} from 'primeng/api';
 import {LucideAngularModule, Pen, Trash, X, ArrowRight, Info} from 'lucide-angular';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Task } from '../../../../../models/task';
@@ -33,7 +33,7 @@ import {Warning} from 'postcss';
     Drawer, FormsModule, LucideAngularModule, PrimeTemplate, ConfirmDialogModule,
     Select, DatePicker, RoundIconButton, DatePipe, Button,
   ],
-  providers: [ConfirmationService, MessageService],
+  providers: [ConfirmationService],
   templateUrl: './task-details-drawer.html',
   styleUrl: './task-details-drawer.css'
 })
@@ -57,7 +57,7 @@ export class TaskDetailsDrawer {
     return list.find(m => m.user.id === meId);
   });
 
-  constructor(private confirmationService: ConfirmationService, private messageService: MessageService) {}
+  constructor(private confirmationService: ConfirmationService) {}
 
   protected readonly ALL_TAGS = ALL_TAGS;
   protected readonly ALL_PRIORITY = ALL_PRIORITY;
@@ -220,10 +220,8 @@ export class TaskDetailsDrawer {
             }
           )
         }
-        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted' });
       },
       reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
       },
     });
   }
