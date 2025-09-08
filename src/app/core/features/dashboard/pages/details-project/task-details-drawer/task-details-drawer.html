@@ -124,7 +124,7 @@
                   @if(editableTask.assignee){
                     <div class="flex gap-1 items-center">
                       <img
-                        [src] = "environment.apiUrl + (editableTask.assignee.profileImageUrl)"
+                        [src] = "environment.apiUrl + (editableTask.assignee.profileImageUrl ?? '/assets/default-avatar.png')"
                         alt="profile avatar"
                         class="rounded-md h-8 w-8"/>
                       <span class="font-medium">{{ editableTask.assignee.username }}</span>
@@ -138,7 +138,7 @@
               <ng-template let-member #item>
                 <div class="flex gap-2 items-center">
                   <img
-                    [src] = "environment.apiUrl + (member.profileImageUrl)"
+                    [src] = "environment.apiUrl + (member?.profileImageUrl ?? '/assets/default-avatar.png')"
                     alt="profile avatar"
                     class="rounded-md h-8 w-8"/>
                   <span class="font-medium">{{ member.username }}</span>
@@ -160,7 +160,7 @@
         </div>
         <div class="flex-1 overflow-y-auto">
           <div class="flex flex-col gap-2 pr-2">
-            @for(item of this.historic(); track item.id) {
+            @for(item of this.sortedHistoric(); track item.id) {
               <div class="w-full flex flex-col gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div class="flex gap-4">
                   <div class="flex gap-1">
@@ -169,13 +169,21 @@
                   </div>
 
                   @if(item.field == 'assigneeId'){
-                    <div class="flex gap-2 items-center">
-                      <img
-                        [src]="environment.apiUrl + (item.newValue.user?.profileImageUrl)"
-                        alt="profile avatar"
-                        class="rounded-md h-8 w-8"/>
-                      <span class="font-medium">{{ item.newValue.user?.username }}</span>
-                    </div>
+                    @if(item.newValue.user != null){
+                      <div class="flex gap-2 items-center">
+                        <img
+                          [src]="environment.apiUrl + (item.newValue.user.profileImageUrl)"
+                          alt="profile avatar"
+                          class="rounded-md h-8 w-8"/>
+                        <span class="font-medium">{{ item.newValue.user.username }}</span>
+                      </div>
+                    } @else {
+                      <div class="flex gap-2 items-center">
+                        <span class="font-medium">Nobody</span>
+                      </div>
+                    }
+                  } @else if(item.field == 'dueDate'){
+                    <p class="font-bold flex-1">{{ item.newValue.text | date: 'd MMM y' }}</p>
                   } @else {
                     <p class="font-bold flex-1">{{ item.newValue.text }}</p>
                   }

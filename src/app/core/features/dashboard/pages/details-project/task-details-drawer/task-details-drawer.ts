@@ -80,6 +80,16 @@ export class TaskDetailsDrawer {
   editableTask: Task | undefined;
   private original?: Task; // snapshot to compute delta
 
+
+  sortedHistoric = computed(() => {
+    const list = this.historic() ?? [];
+    return [...list].sort((a, b) => {
+      const ad = a?.changedAt ? new Date(a.changedAt).getTime() : 0;
+      const bd = b?.changedAt ? new Date(b.changedAt).getTime() : 0;
+      return bd - ad;
+    });
+  });
+
   ngOnInit() {
     this.change$
       .pipe(
@@ -243,4 +253,5 @@ export class TaskDetailsDrawer {
   protected readonly History = History;
   protected readonly Info = Info;
   protected readonly Warning = Warning;
+  protected readonly Date = Date;
 }

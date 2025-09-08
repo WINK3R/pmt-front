@@ -97,28 +97,46 @@ export class DetailsProject {
     { id: 'completed', status: TaskStatus.COMPLETED, color: 'text-blue-400', name: 'Completed', tasks: [] },
   ];
 
-  drop(event: CdkDragDrop<Task[] | any[], any>) {
+  drop(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-      const movedTask = event.container.data[event.currentIndex] as Task;
-      const newStatus = this.columns.find(c => c.id === event.container.id)?.status;
-
-      if (movedTask && newStatus && movedTask.status !== newStatus) {
-        this.repoTask.updateTaskStatus(movedTask.id, newStatus)
-      }
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      return;
     }
+
+    transferArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
+
+    const movedTask = event.container.data[event.currentIndex] as Task;
+    const newStatus = this.columns.find(c => c.id === event.container.id)!.status;
+
+    if (!movedTask || movedTask.status === newStatus) return;
+
+    const oldStatus = movedTask.status;
+    movedTask.status = newStatus;
+
+    this.repoTask.updateTaskStatus(movedTask.id, newStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          Object.assign(movedTask, updated);
+        },
+        error: (err) => {
+          console.error('Failed to update status', err);
+          movedTask.status = oldStatus;
+          transferArrayItem(
+            event.container.data,
+            event.previousContainer.data,
+            event.currentIndex,
+            event.previousIndex
+          );
+        }
+      });
   }
+
 
 
   protected readonly Plus = Plus;
@@ -227,12 +245,9 @@ export class DetailsProject {
   }
 
   applyTaskToBoard(updated: Task) {
-    // update the selected reference
     if (this.selectedTask?.id === updated.id) {
       this.selectedTask = updated;
     }
-
-    // also replace/move in your columns
     const fromIdx = this.columns.findIndex(c => c.tasks.some(t => t.id === updated.id));
     if (fromIdx === -1) return;
 
