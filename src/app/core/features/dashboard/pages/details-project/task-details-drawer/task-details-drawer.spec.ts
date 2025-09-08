@@ -1,15 +1,15 @@
 import {ComponentFixture, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
-import { TaskDetailsDrawer } from './task-details-drawer';
-import { of, throwError } from 'rxjs';
-import { ConfirmationService } from 'primeng/api';
-import { ProjectRepository } from '../../../../../repositories/projectRepository';
-import { TaskRepository } from '../../../../../repositories/TaskRepository';
-import { AuthService } from '../../../../../services/auth/authService';
-import { ProjectPolicyService } from '../../../../../politicy/projectPolicyService';
-import { Task } from '../../../../../models/task';
-import { TaskStub } from '../../../../../utils/stubs/taskStub';
-import { ProjectMembershipDTO, TaskHistoryDTO } from '../../../../../models/dtos/dto';
-import { Role } from '../../../../../models/enum/role';
+import {TaskDetailsDrawer} from './task-details-drawer';
+import {of, throwError} from 'rxjs';
+import {ConfirmationService} from 'primeng/api';
+import {ProjectRepository} from '../../../../../repositories/projectRepository';
+import {TaskRepository} from '../../../../../repositories/TaskRepository';
+import {AuthService} from '../../../../../services/auth/authService';
+import {ProjectPolicyService} from '../../../../../politicy/projectPolicyService';
+import {Task} from '../../../../../models/task';
+import {TaskStub} from '../../../../../utils/stubs/taskStub';
+import {ProjectMembershipDTO, TaskHistoryDTO} from '../../../../../models/dtos/dto';
+import {Role} from '../../../../../models/enum/role';
 
 describe('TaskDetailsDrawer', () => {
   let component: TaskDetailsDrawer;
@@ -215,16 +215,28 @@ describe('TaskDetailsDrawer', () => {
 
 
   it('should normalize patch with dueDate and assignee', () => {
+    component.task = {
+      ...mockTask,
+      projectId: 'proj-1',
+      createdBy: {id: 'u1'},
+      createdAt: new Date().toISOString(),
+    } as any;
+    component.ngOnChanges();
+
     const patch = {
       dueDate: new Date('2025-01-01T00:00:00Z'),
-      assignee: { id: 'bob' }
+      assignee: { id: 'bob' },
     } as any;
 
-    const normalized = (component as any).normalizePatch(patch);
+    const normalized = (component as any).buildFullUpdateBody(patch);
+
     expect(normalized.dueDate).toContain('2025-01-01');
     expect(normalized.assigneeId).toBe('bob');
-    expect(normalized.assignee).toBeUndefined();
+    expect((normalized as any).assignee).toBeUndefined();
+    expect(normalized.projectId).toBe('proj-1');
+    expect(normalized.createdById).toBe('u1');
   });
+
 
   it('should compute delta when nothing changed', () => {
     component.task = mockTask;
