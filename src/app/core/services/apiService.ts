@@ -30,6 +30,8 @@ export class ApiService {
     get: (id: string): Observable<ProjectDTO> => this.http.get<ProjectDTO>(this.url(`/projects/${id}`)),
     create: (body: Partial<ProjectDTO>): Observable<ProjectDTO> =>
       this.http.post<ProjectDTO>(this.url('/projects'), body),
+    update: (id: string, body: Partial<ProjectDTO>): Observable<ProjectDTO> =>
+      this.http.patch<ProjectDTO>(this.url(`/projects/${id}`), body),
 
     tasks: {
       list: (projectId: string): Observable<Task[]> => this.http.get<Task[]>(this.url(`/projects/${projectId}/tasks`)),

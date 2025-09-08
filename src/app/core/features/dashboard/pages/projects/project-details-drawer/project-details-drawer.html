@@ -14,6 +14,7 @@
                    appearance-none field-sizing-content "
             placeholder="What you want to do next ?"
             [(ngModel)]="editableProject.name"
+            (ngModelChange)="onFieldChange({ name: editableProject.name })"
             [ngModelOptions]="{ standalone: true }"
           ></textarea>
           <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-2"></lucide-icon>
@@ -23,6 +24,7 @@
             [options]="ALL_TAGS"
             placeholder="Select a Tag"
             [(ngModel)]="editableProject.tag"
+            (ngModelChange)="onFieldChange({ tag: editableProject.tag })"
             class="w-full md:w-56">
             <ng-template pTemplate="item" let-opt>
               {{ labelOf(opt) }}
@@ -39,6 +41,7 @@
         <textarea
           class="w-full border-0 outline-none field-sizing-content"
           [(ngModel)]="editableProject.description"
+          (ngModelChange)="onFieldChange({ description: editableProject.description })"
           [ngModelOptions]="{ standalone: true }"
         ></textarea>
           <lucide-icon [img]="Pen" class="h-5 w-5 opacity-50 mt-2"></lucide-icon>

@@ -1,6 +1,6 @@
 import {
   Component,
-  computed,
+  computed, DestroyRef,
   ElementRef,
   EventEmitter,
   inject,
@@ -37,6 +37,8 @@ import {Role} from '../../../../../models/enum/role';
 import {UserMemberRow} from '../../../../../components/users/user-member-row/user-member-row';
 import {ProjectPolicyService} from '../../../../../politicy/projectPolicyService';
 import {Tooltip} from 'primeng/tooltip';
+import {debounceTime, filter, Subject, switchMap} from 'rxjs';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-project-details-drawer',
@@ -61,15 +63,20 @@ export class ProjectDetailsDrawer {
   @Output() projectChange = new EventEmitter<ProjectDTO>();
   @Output() closed = new EventEmitter<void>();
   editableProject: ProjectDTO | undefined;
+  private original?: ProjectDTO;
   members = signal<ProjectMembershipDTO[]>([]);
   invitations = signal<InvitationDTO[]>([]);
   loading = signal<boolean>(true);
   error = signal<string | undefined>(undefined);
+  dirty = signal(false);
+
   addMemberClicked = false;
   private readonly repoProject = inject(ProjectRepository);
   private readonly repoInvitation = inject(InvitationRepository);
   protected readonly policyService = inject(ProjectPolicyService);
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
+  private change$ = new Subject<Partial<ProjectDTO>>();
   @ViewChild('teammateInput') teammateInput!: ElementRef<HTMLInputElement>;
 
   me: Signal<ProjectMembershipDTO | undefined> = computed(() => {
@@ -101,8 +108,9 @@ export class ProjectDetailsDrawer {
     }
   }
 
-  handleHide() {
+  async handleHide() {
     this.visible = false;
+    await this.flushPending();
     this.visibleChange.emit(false);
     this.closed.emit();
   }
@@ -156,7 +164,81 @@ export class ProjectDetailsDrawer {
       });
   }
 
+  private computeDelta(): Partial<ProjectDTO> {
+    if (!this.original || !this.editableProject) return {};
+    const delta: any = {};
 
+    const norm = (v: any) =>
+      v instanceof Date ? v.toISOString() :
+        (typeof v === 'object' && v?.id) ? v.id :
+          v;
+
+    const fields: (keyof ProjectDTO)[] = ['name','description','tag'];
+    for (const f of fields) {
+      const cur = (this.editableProject as any)[f];
+      const prev = (this.original as any)[f];
+      if (norm(cur) !== norm(prev)) {
+        delta[f] = cur instanceof Date ? cur.toISOString() : cur;
+      }
+    }
+    return delta;
+  }
+
+
+  private async flushPending() {
+    const delta = this.computeDelta();
+    if (Object.keys(delta).length === 0) return;
+    await new Promise<void>(resolve => {
+      this.savePatch(delta).subscribe({
+        next: (updated: ProjectDTO) => {
+          this.original = { ...updated };
+          this.editableProject = {
+            ...updated
+          };
+          this.projectChange.emit(updated);
+          resolve();
+        },
+        error: () => resolve()
+      });
+    });
+  }
+
+  ngOnInit() {
+    this.change$
+      .pipe(
+        debounceTime(800),
+        filter(() => !!this.editableProject?.id),
+        switchMap(patch => this.savePatch(patch)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (updatedFromServer: ProjectDTO) => {
+          this.original = { ...updatedFromServer };
+          this.editableProject = {
+            ...updatedFromServer
+          };
+
+          this.dirty.set(false);
+          this.projectChange.emit(updatedFromServer);
+        },
+        error: err => console.error('Autosave failed', err)
+      });
+  }
+
+  private savePatch(patch: Partial<ProjectDTO>) {
+    if (!this.editableProject?.id) {
+      throw new Error('No editableProject to save');
+    }
+    const id = this.editableProject.id;
+    return this.repoProject.update(id, patch);
+  }
+
+  setDirty() { this.dirty.set(true); }
+
+  onFieldChange(patch: Partial<ProjectDTO>) {
+    this.setDirty();
+    this.change$.next(patch);
+  }
 
   protected readonly Pen = Pen;
   protected readonly labelOf = labelOf;

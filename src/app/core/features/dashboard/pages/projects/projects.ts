@@ -1,5 +1,4 @@
 import {Component, DestroyRef, inject, signal} from '@angular/core';
-import {Drawer} from 'primeng/drawer';
 import {SquareIconButton} from '../../../../components/buttons/square-icon-button/square-icon-button';
 import {Bell, BellDot, Box, ChevronRight, House, LucideAngularModule, Pen, Plus} from 'lucide-angular';
 import {TopBarDashboard} from '../../../../components/layout/top-bar-dashboard/top-bar-dashboard';
@@ -130,9 +129,22 @@ export class Projects {
     this.loadInvitations();
   }
 
-  onProjectChange(e: ProjectDTO) {
-    //TODO : manage change and update in api
+  onProjectChange(updated: ProjectDTO) {
+    this.projects.update(list => {
+      return list.map(p => {
+        if (p.id === updated.id) {
+          return { ...p, ...updated };
+        }
+        return p;
+      });
+    });
+
+    if (this.selectedProject?.id === updated.id) {
+      this.selectedProject = { ...this.selectedProject, ...updated };
+    }
   }
+
+
 
   protected readonly Bell = Bell;
   protected readonly BellDot = BellDot;
