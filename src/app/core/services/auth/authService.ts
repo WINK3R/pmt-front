@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import {BehaviorSubject, firstValueFrom, switchMap, tap} from 'rxjs';
 import {Router} from '@angular/router';
 import {UserDTO} from '../../models/dtos/dto';
+import {environment} from '../../../../environments/environment';
 
 
 export interface LoginResponse { accessToken: string; email: string; }
@@ -12,7 +13,8 @@ export interface LoginResponse { accessToken: string; email: string; }
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private readonly base = environment.apiUrl;
+  private apiUrl = `${this.base}/auth`;
 
   private userSubject = new BehaviorSubject<UserDTO | undefined>(undefined);
   user$ = this.userSubject.asObservable();

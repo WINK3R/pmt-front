@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import {Observable} from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
-  UserDTO, ProjectDTO, TaskDTO, TaskHistoryDTO, ProjectMembershipDTO,
-  NotificationDTO, InvitationDTO, CreateTaskRequest, InvitationCreationDTO
+  UserDTO, ProjectDTO, TaskDTO, TaskHistoryDTO, ProjectMembershipDTO, InvitationDTO, CreateTaskRequest, InvitationCreationDTO
 } from '../models/dtos/dto';
 import {Task} from '../models/task';
 
@@ -78,23 +77,6 @@ export class ApiService {
 
     history: (taskId: string): Observable<TaskHistoryDTO[]> =>
       this.http.get<TaskHistoryDTO[]>(this.url(`/tasks/${taskId}/history`)),
-  };
-
-  notifications = {
-    list: (): Observable<NotificationDTO[]> =>
-      this.http.get<NotificationDTO[]>(this.url('/notifications')),
-    create: (body: Partial<NotificationDTO>): Observable<NotificationDTO> =>
-      this.http.post<NotificationDTO>(this.url('/notifications'), body),
-    get: (id: string): Observable<NotificationDTO> =>
-      this.http.get<NotificationDTO>(this.url(`/notifications/${id}`)),
-    byUser: (userId: string): Observable<NotificationDTO[]> =>
-      this.http.get<NotificationDTO[]>(this.url(`/notifications/by-user/${userId}`)),
-    byTask: (taskId: string): Observable<NotificationDTO[]> =>
-      this.http.get<NotificationDTO[]>(this.url(`/notifications/by-task/${taskId}`)),
-    byStatus: (status: string): Observable<NotificationDTO[]> =>
-      this.http.get<NotificationDTO[]>(this.url(`/notifications/by-status/${status}`)),
-    markSent: (id: string): Observable<NotificationDTO> =>
-      this.http.patch<NotificationDTO>(this.url(`/notifications/${id}/mark-sent`), {}),
   };
 
   invitations = {

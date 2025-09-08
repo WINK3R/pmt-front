@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
 import { TaskDetailsDrawer } from './task-details-drawer';
 import { of, throwError } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
@@ -50,6 +50,8 @@ describe('TaskDetailsDrawer', () => {
     taskRepoSpy.getTaskHistory.and.returnValue(of(mockHistory));
     taskRepoSpy.update.and.returnValue(of(mockTask));
     taskRepoSpy.delete.and.returnValue(of(void 0));
+    taskRepoSpy.update.and.callFake((id: string, body: any) => of({ ...mockTask, ...body, id }));
+    taskRepoSpy.delete.and.callFake((id: string) => of(void 0));
 
     await TestBed.configureTestingModule({
       imports: [TaskDetailsDrawer],
@@ -109,6 +111,24 @@ describe('TaskDetailsDrawer', () => {
     expect(taskRepoSpy.delete).not.toHaveBeenCalled();
   });
 
+  it('should autosave patch via change$ in ngOnInit', fakeAsync(() => {
+    component.ngOnInit();
+    spyOn(component.taskChange, 'emit');
+
+    component.editableTask = { ...mockTask };
+
+    component.onFieldChange({ title: 'patched' });
+
+    tick(800);
+
+    expect(taskRepoSpy.update)
+      .toHaveBeenCalledWith(mockTask.id, jasmine.objectContaining({ title: 'patched' }));
+
+    expect(component.taskChange.emit)
+      .toHaveBeenCalledWith(jasmine.objectContaining({ id: mockTask.id, title: 'patched' }));
+
+    expect(component.dirty()).toBeFalse();
+  }));
 
 
 
@@ -116,5 +136,138 @@ describe('TaskDetailsDrawer', () => {
     taskRepoSpy.getTaskHistory.and.returnValue(throwError(() => 'fail'));
     component.ngOnChanges();
     expect(component.loading()).toBeFalse();
+  });
+
+  it('should resolve immediately when no delta', async () => {
+    spyOn<any>(component, 'computeDelta').and.returnValue({});
+    const saveSpy = spyOn<any>(component, 'savePatch');
+
+    await (component as any).flushPending();
+
+    expect(saveSpy).not.toHaveBeenCalled();
+  });
+
+  it('should save and update task when delta exists', async () => {
+    const delta = { title: 'changed' };
+    spyOn<any>(component, 'computeDelta').and.returnValue(delta);
+    spyOn<any>(component, 'savePatch').and.returnValue(of(mockTask));
+    spyOn(component.taskChange, 'emit');
+
+    await (component as any).flushPending();
+
+    expect(component.taskChange.emit).toHaveBeenCalledWith(mockTask);
+    expect(component.editableTask?.id).toBe(mockTask.id);
+    expect(component['original']?.id).toBe(mockTask.id);
+  });
+
+  it('should resolve even if savePatch errors', async () => {
+    const delta = { title: 'fail' };
+    spyOn<any>(component, 'computeDelta').and.returnValue(delta);
+    spyOn<any>(component, 'savePatch').and.returnValue(throwError(() => new Error('fail')));
+    spyOn(component.taskChange, 'emit');
+
+    await (component as any).flushPending();
+
+    expect(component.taskChange.emit).not.toHaveBeenCalled();
+  });
+
+
+  it('should do nothing when rejected', () => {
+    confirmationService.confirm.and.callFake((options: any) => options.reject());
+
+    spyOn(component.taskDeleted, 'emit');
+
+    component.task = mockTask;
+    component.confirm();
+
+    expect(taskRepoSpy.delete).not.toHaveBeenCalled();
+    expect(component.taskDeleted.emit).not.toHaveBeenCalled();
+  });
+
+  it('should do nothing if no task is set', () => {
+    confirmationService.confirm.and.callFake((options: any) => options.accept());
+
+    spyOn(component.taskDeleted, 'emit');
+
+    component.task = undefined;
+    component.confirm();
+
+    expect(taskRepoSpy.delete).not.toHaveBeenCalled();
+    expect(component.taskDeleted.emit).not.toHaveBeenCalled();
+  });
+
+  it('should catch error if delete fails', fakeAsync(() => {
+    taskRepoSpy.delete.and.returnValue(throwError(() => new Error('fail')));
+    confirmationService.confirm.and.callFake((options: any) => options.accept());
+
+    spyOn(component.taskDeleted, 'emit');
+    component.task = mockTask;
+
+    component.confirm();
+
+    flushMicrotasks();
+
+    expect(component.taskDeleted.emit).not.toHaveBeenCalled();
+  }));
+
+
+
+
+
+  it('should normalize patch with dueDate and assignee', () => {
+    const patch = {
+      dueDate: new Date('2025-01-01T00:00:00Z'),
+      assignee: { id: 'bob' }
+    } as any;
+
+    const normalized = (component as any).normalizePatch(patch);
+    expect(normalized.dueDate).toContain('2025-01-01');
+    expect(normalized.assigneeId).toBe('bob');
+    expect(normalized.assignee).toBeUndefined();
+  });
+
+  it('should compute delta when nothing changed', () => {
+    component.task = mockTask;
+    component.ngOnChanges();
+    const delta = (component as any).computeDelta();
+    expect(delta).toEqual({});
+  });
+
+  it('should compute delta with changes (title + assignee)', () => {
+    component.task = mockTask;
+    component.ngOnChanges();
+
+    component.editableTask!.title = 'changed';
+    (component.editableTask as any).assignee = { id: 'new' };
+
+    const delta = (component as any).computeDelta();
+    expect(delta.title).toBe('changed');
+    expect(delta.assigneeId).toBe('new');
+  });
+
+  it('should flushPending do nothing when delta empty', async () => {
+    spyOn(component as any, 'computeDelta').and.returnValue({});
+    const result = await (component as any).flushPending();
+    expect(result).toBeUndefined();
+    expect(taskRepoSpy.update).not.toHaveBeenCalled();
+  });
+
+  it('should canEditTask return true when allowed', () => {
+    component.task = mockTask;
+    component.ngOnChanges();
+    expect(component.canEditTask()).toBeTrue();
+  });
+
+  it('should compute memberUsers correctly', () => {
+    component.members.set([mockMember]);
+    const users = component.memberUsers;
+    expect(users.length).toBe(1);
+    expect(users[0].username).toBe('John');
+  });
+
+  it('should set dirty flag', () => {
+    component.dirty.set(false);
+    component.setDirty();
+    expect(component.dirty()).toBeTrue();
   });
 });

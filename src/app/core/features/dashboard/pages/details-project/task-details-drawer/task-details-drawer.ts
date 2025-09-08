@@ -106,7 +106,10 @@ export class TaskDetailsDrawer {
   }
 
   private savePatch(patch: Partial<Task>) {
-    const id = this.editableTask!.id!;
+    if (!this.editableTask?.id) {
+      throw new Error('No editableTask to save');
+    }
+    const id = this.editableTask.id;
     const body = this.normalizePatch(patch);
     return this.repoTask.update(id, body);
   }
@@ -213,12 +216,15 @@ export class TaskDetailsDrawer {
       message: 'Do you want to delete this task?',
       header: 'Confirm',
       accept: () => {
-        if(this.task){
+        if (this.task) {
           this.repoTask.delete(this.task.id).subscribe({
-            next: () => { this.taskDeleted.emit(this.task?.id)},
-            error: () => {}
+            next: () => {
+              this.taskDeleted.emit(this.task?.id);
+            },
+            error: () => {
+              console.log("error")
             }
-          )
+          });
         }
       },
       reject: () => {
