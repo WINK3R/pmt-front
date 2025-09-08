@@ -27,7 +27,7 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Tests (si dispo)
+      - name: Tests
         run: |
           if npm run | grep -q "test"; then
             npm test -- --watch=false --browsers=ChromeHeadless || npm test
