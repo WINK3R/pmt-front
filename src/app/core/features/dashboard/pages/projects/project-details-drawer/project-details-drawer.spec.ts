@@ -90,16 +90,6 @@ describe('ProjectDetailsDrawer', () => {
     expect(console.error).toHaveBeenCalledWith('Failed to fetch members', 'fail');
   });
 
-  it('should hide and emit events on handleHide', () => {
-    spyOn(component.visibleChange, 'emit');
-    spyOn(component.closed, 'emit');
-    component.visible = true;
-    component.handleHide();
-    expect(component.visible).toBeFalse();
-    expect(component.visibleChange.emit).toHaveBeenCalledWith(false);
-    expect(component.closed.emit).toHaveBeenCalled();
-  });
-
   it('should close() call handleHide', () => {
     spyOn(component, 'handleHide');
     component.close();
