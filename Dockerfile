@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run build --prod
+RUN npm run build --configuration=prod
 
 FROM nginx:1.27
 COPY --from=build /app/dist/Front-end/browser /usr/share/nginx/html
