@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ApiService } from '../services/apiService';
 import { Task } from '../models/task';
-import {CreateTaskRequest, TaskDTO} from '../models/dtos/dto';
+import {CreateTaskRequest} from '../models/dtos/dto';
 import {TaskStatus} from '../models/enum/taskStatus';
 
 @Injectable({ providedIn: 'root' })
@@ -18,11 +18,11 @@ export class TaskRepository {
       .pipe(map(Task.fromApi));
   }
 
-  update(id:string, task: Partial<Task>){
-    const payload: Partial<TaskDTO> = {
+  update(id:string, task: CreateTaskRequest){
+    const payload: CreateTaskRequest = {
       ...task,
       dueDate: task.dueDate?.toString(),
-      createdAt: task.createdBy?.toString(),
+      createdAt: task.createdAt?.toString(),
       updatedAt: task.updatedAt?.toString()
     };
     return this.api.tasks.update(id, payload)

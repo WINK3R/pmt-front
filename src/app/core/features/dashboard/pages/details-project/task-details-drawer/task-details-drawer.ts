@@ -15,7 +15,7 @@ import { ALL_TAGS, labelOf } from '../../../../../models/enum/tag';
 import { ALL_PRIORITY } from '../../../../../models/enum/taskPriority';
 import { ProjectRepository } from '../../../../../repositories/projectRepository';
 import { TaskRepository } from '../../../../../repositories/TaskRepository';
-import {ProjectMembershipDTO, TaskHistoryDTO, UserDTO} from '../../../../../models/dtos/dto';
+import {CreateTaskRequest, ProjectMembershipDTO, TaskHistoryDTO, UserDTO} from '../../../../../models/dtos/dto';
 import { environment } from '../../../../../../../environments/environment';
 import {RoundIconButton} from '../../../../../components/buttons/round-icon-button/round-icon-button';
 import {AuthService} from '../../../../../services/auth/authService';
@@ -116,12 +116,9 @@ export class TaskDetailsDrawer {
   }
 
   private savePatch(patch: Partial<Task>) {
-    if (!this.editableTask?.id) {
-      throw new Error('No editableTask to save');
-    }
-    const id = this.editableTask.id;
-    const body = this.normalizePatch(patch);
-    return this.repoTask.update(id, body);
+    if (!this.editableTask?.id) throw new Error('No editableTask to save');
+    const body = this.buildFullUpdateBody(patch);
+    return this.repoTask.update(this.editableTask.id, body);
   }
 
   ngOnChanges() {
@@ -147,19 +144,35 @@ export class TaskDetailsDrawer {
     this.dirty.set(false);
   }
 
-  private normalizePatch(patch: Partial<Task>): Partial<Task> {
-    let p = { ...patch };
-    if ('dueDate' in p && p.dueDate instanceof Date) {
-      (p as any).dueDate = (p.dueDate as Date).toISOString();
+  private buildFullUpdateBody(patch: Partial<Task>): CreateTaskRequest {
+    if (!this.editableTask) {
+      throw new Error('No editableTask to save');
     }
-    if ('assignee' in p && (p as any).assignee) {
-      const id = (p as any).assignee?.id ?? null;
-      delete (p as any).assignee;
-      (p as any).assigneeId = id;
-    }
+    const merged: Task = { ...this.editableTask, ...patch };
 
-    return p;
+    const toIsoOrUndef = (v: any): string | undefined => {
+      if (!v) return undefined;
+      if (v instanceof Date) return v.toISOString();
+      const d = new Date(v as any);
+      return isNaN(d.getTime()) ? undefined : d.toISOString();
+    };
+
+    return {
+      title:        merged.title ?? '',
+      description:  merged.description ?? '',
+      label:        (merged as any).label ?? '',
+      dueDate:      toIsoOrUndef((merged as any).dueDate),
+      priority:     (merged as any).priority ?? undefined,
+      status:       (merged as any).status ?? undefined,
+      projectId:    (merged as any).projectId!,
+      assigneeId:   (merged as any).assignee?.id ?? undefined,
+      createdById:  (merged as any).createdBy?.id ?? (merged as any).createdById!,
+      updatedById:  this.auth.currentUser!.id,
+      createdAt:    toIsoOrUndef((merged as any).createdAt)!,
+      updatedAt:    new Date().toISOString(),
+    };
   }
+
 
   private computeDelta(): Partial<Task> {
     if (!this.original || !this.editableTask) return {};

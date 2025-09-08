@@ -71,7 +71,7 @@ export class ApiService {
     create: (body: CreateTaskRequest): Observable<TaskDTO> =>
       this.http.post<TaskDTO>(this.url('/tasks'), body),
 
-    update: (id: string, body: Partial<TaskDTO>): Observable<TaskDTO> =>
+    update: (id: string, body: CreateTaskRequest | any): Observable<TaskDTO> =>
       this.http.patch<TaskDTO>(this.url(`/tasks/${id}`), body),
 
     delete: (id: string): Observable<void> =>
