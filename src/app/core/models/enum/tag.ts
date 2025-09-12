@@ -1,5 +1,4 @@
 export enum Tag {
-  // Engineering & Tech
   Development = 'development',
   Frontend = 'frontend',
   Backend = 'backend',
@@ -24,7 +23,6 @@ export enum Tag {
   Accessibility = 'accessibility',
   Localization = 'localization',
 
-  // Design & Creativity
   Creativity = 'creativity',
   Design = 'design',
   UIUX = 'ui-ux',
@@ -40,7 +38,6 @@ export enum Tag {
   Content = 'content',
   Blogging = 'blogging',
 
-  // Product & Business
   Product = 'product',
   ProjectManagement = 'project-management',
   Marketing = 'marketing',
@@ -57,12 +54,10 @@ export enum Tag {
   Compliance = 'compliance',
   Legal = 'legal',
 
-  // Education & Research
   Education = 'education',
   Research = 'research',
   Science = 'science',
 
-  // Health, Fitness & Sport
   Health = 'health',
   Wellness = 'wellness',
   Nutrition = 'nutrition',

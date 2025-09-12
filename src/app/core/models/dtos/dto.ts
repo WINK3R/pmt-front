@@ -1,5 +1,3 @@
-// Keep these minimal and extend as your backend grows
-
 import {Tag} from '../enum/tag';
 import {TaskPriority} from '../enum/taskPriority';
 import {TaskStatus} from '../enum/taskStatus';
@@ -108,11 +106,11 @@ export interface CreateTaskRequest {
   title: string;
   description: string;
   label: string;
-  dueDate: string | undefined; // en ISO (ex: "2025-08-22T14:30:00Z")
-  priority: TaskPriority; // "LOW" | "MEDIUM" | "HIGH"
+  dueDate: string | undefined;
+  priority: TaskPriority;
   status: TaskStatus;
-  projectId: string;  // UUID
-  assigneeId: string | undefined; // UUID
+  projectId: string;
+  assigneeId: string | undefined;
   createdById: string;
   updatedById: string;
   createdAt: string;
